@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>超便宜数据网站</title>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: auto; padding: 20px; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { padding: 10px 20px; }
+    .entry { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>提交你的信息</h1>
+  <form id="dataForm">
+    <input type="text" id="name" placeholder="姓名" required />
+    <input type="email" id="email" placeholder="邮箱" required />
+    <textarea id="message" placeholder="留言信息" required></textarea>
+    <button type="submit">提交</button>
+  </form>
+
+  <h2>所有留言</h2>
+  <div id="entries"></div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzUGuIPb_nWweBAx2--NqCe9Qz0KD4KJw0AYJGYOaDL6Csy2Q5xlDhibdiSalUqCB9MnQ/exec";
+
+    document.getElementById("dataForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const message = document.getElementById("message").value;
+
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({ name, email, message })
+      });
+
+      if (res.ok) {
+        alert("提交成功！");
+        loadEntries();
+        e.target.reset();
+      } else {
+        alert("提交失败，请稍后重试。");
+      }
+    });
+
+    async function loadEntries() {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
+      const entriesDiv = document.getElementById("entries");
+      entriesDiv.innerHTML = '';
+      data.reverse().forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `<strong>${entry.Name}</strong> (${entry.Email})<br>${entry.Message}`;
+        entriesDiv.appendChild(div);
+      });
+    }
+
+    loadEntries();
+  </script>
+</body>
+</html>
